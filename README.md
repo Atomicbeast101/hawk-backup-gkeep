@@ -1,6 +1,6 @@
-# HawkBackup - Google Drive Backup
+# HawkBackup - Google Keep Backup
 
-Ansible playbook that backs up all files from your Google Drive. Used Gitea w/ Runner to automatically run backups daily.
+Ansible playbook that backs up all notes from Google Keep via API.
 
 ## Setup
 
