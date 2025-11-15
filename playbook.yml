@@ -1,0 +1,41 @@
+---
+# https://github.com/wpacket/pan-ansible/blob/master/pan_config_pull.yml
+- name: Backup Config from Palo Alto Firewall
+  hosts: localhost
+  gather_facts: no
+  vars:
+    # Google Drive
+    
+    # SFTP Server
+    sftp_host: "{{ lookup('ansible.builtin.env', 'SFTP_HOST') }}"
+    sftp_port: "{{ lookup('ansible.builtin.env', 'SFTP_PORT', default=22) }}"
+    sftp_username: "{{ lookup('ansible.builtin.env', 'SFTP_USERNAME') }}"
+    sftp_password: "{{ lookup('ansible.builtin.env', 'SFTP_PASSWORD') }}"
+    sftp_path: "{{ lookup('ansible.builtin.env', 'SFTP_PATH') }}"
+    # Pushover
+    pushover_token: "{{ lookup('ansible.builtin.env', 'PUSHOVER_TOKEN') }}"
+    pushover_user: "{{ lookup('ansible.builtin.env', 'PUSHOVER_USER') }}"
+  tasks:
+    - name: Perform Backup
+      block:
+        - name: Create Backup File Path
+          ansible.builtin.set_fact:
+            backup_file: "GDrive-Backup__{{ now().strftime('%Y.%m.%d') }}"
+
+        - name: Run Extract Script
+          delegate_to: localhost
+          script: extract.py
+
+      rescue:
+        - name: Notify Admin of Failed Backup
+          delegate_to: localhost
+          ansible.builtin.uri:
+            url: https://api.pushover.net/1/messages.json
+            method: POST
+            headers: 
+              Content-Type: application/json
+            body_format: json
+            body:
+              token: "{{ pushover_token }}"
+              user: "{{ pushover_user }}"
+              message: "❌ Unable to perform backup for Google Drive!"
