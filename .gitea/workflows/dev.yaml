@@ -1,0 +1,65 @@
+name: Build/Push App for Development
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  release:
+    name: Release
+    steps:
+      - name: Build Image(s)
+        uses: https://${{ vars.LOCAL_ACR_URL }}/${{ vars.LOCAL_ACR_USERNAME }}/gitea-workflows-builder@main
+        with:
+          registry_url: ${{ vars.LOCAL_ACR_URL }}
+          registry_username: ${{ vars.LOCAL_ACR_USERNAME }}
+          registry_password: ${{ secrets.LOCAL_ACR_PASSWORD }}
+          development: true
+
+  # test:
+  #   name: Test
+  #   runs-on: ubuntu-latest
+  #   container:
+  #     image: catthehacker/ubuntu:act-latest
+  #   steps:
+  #     - name: Run container and capture logs
+  #       env:
+  #         SWITCH_HOST: 
+  #         SWITCH_USERNAME: 
+  #         SWITCH_PASSWORD: 
+  #         SFTP_HOST: 
+  #         SFTP_USERNAME: 
+  #         SFTP_PASSWORD: 
+  #         SFTP_PATH: 
+  #         PUSHOVER_USER_KEY: ${{ secrets.PUSHOVER_USER }}
+  #         PUSHOVER_APP_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
+  #       run: |
+  #         docker run --name test ${{ env.IMAGE_BASE }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.DATE_RELEASE }}${{ env.IMAGE_TAG_ENDING }} /bin/bash -c "/app/setup.sh; /app/run.sh"
+  #         docker wait test
+  #         docker logs test > logs.txt
+  #         docker rm test
+
+  #     - name: Send Logs via Email
+  #       uses: dawidd6/action-send-mail@v6
+  #       with:
+  #         connection_url: ${{ secrets.SMTP_CONNECTION }}
+  #         subject: 
+  #         to: ${{ vars.SMTP_RECEIVER }}
+  #         from: Gitea DevOps - Test Results for ${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.DATE_RELEASE }}${{ env.IMAGE_TAG_ENDING }}
+  #         body: Please see attached logs file.
+  #         attachments: logs.txt
+
+  report:
+    name: Report
+    continue-on-error: true
+    needs: 
+      - release
+      # - test
+    steps:
+      - name: Notify User
+        uses: https://${{ vars.LOCAL_ACR_URL }}/${{ vars.LOCAL_ACR_USERNAME }}/gitea-workflows-notification@main
+        with:
+          success: needs.release.result == 'success' # && needs.test.result == 'success'
+          development: true
+          pushover_user: ${{ secrets.PUSHOVER_USER }}
+          pushover_token: ${{ secrets.PUSHOVER_TOKEN }}

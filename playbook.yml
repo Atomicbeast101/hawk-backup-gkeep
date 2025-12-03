@@ -1,11 +1,9 @@
 ---
 # https://github.com/wpacket/pan-ansible/blob/master/pan_config_pull.yml
-- name: Backup Config from Palo Alto Firewall
+- name: Backup Data from Google Keep
   hosts: localhost
   gather_facts: no
   vars:
-    # Google Drive
-    
     # SFTP Server
     sftp_host: "{{ lookup('ansible.builtin.env', 'SFTP_HOST') }}"
     sftp_port: "{{ lookup('ansible.builtin.env', 'SFTP_PORT', default=22) }}"
@@ -20,11 +18,28 @@
       block:
         - name: Create Backup File Path
           ansible.builtin.set_fact:
-            backup_file: "GDrive-Backup__{{ now().strftime('%Y.%m.%d') }}"
+            backup_data_file: "GoogleKeep__data__{{ now().strftime('%Y.%m.%d') }}.json"
+
+        - name: Create .downloads/ Directory
+          delegate_to: localhost
+          ansible.builtin.file:
+            path: .downloads/
+            state: directory
+            mode: '0755'
 
         - name: Run Extract Script
           delegate_to: localhost
-          script: extract.py
+          command: ".venv/bin/python extract.py {{ backup_data_file }}"
+        
+        - name: Upload Config to SFTP
+          delegate_to: localhost
+          ansible.builtin.shell: "echo 'put .downloads/{{ backup_data_file }}' | sshpass -p '{{ sftp_password }}' sftp -o StrictHostKeyChecking=no -P {{ sftp_port }} {{ sftp_username }}@{{ sftp_host }}:{{ sftp_path }}"
+
+        - name: Delete Config File Locally
+          delegate_to: localhost
+          ansible.builtin.file:
+            path: ".downloads/{{ backup_data_file }}"
+            state: absent
 
       rescue:
         - name: Notify Admin of Failed Backup
@@ -36,6 +51,6 @@
               Content-Type: application/json
             body_format: json
             body:
-              token: "{{ pushover_token }}"
               user: "{{ pushover_user }}"
-              message: "❌ Unable to perform backup for Google Drive!"
+              token: "{{ pushover_token }}"
+              message: "❌ Unable to perform data backup for Google Keep!"

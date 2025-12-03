@@ -1,4 +1,3 @@
+local_test.sh
+.downloads
 .venv
-test_run.sh
-google_api_service_account.json
-test_python_run.sh
