@@ -17,5 +17,4 @@ COPY playbook.yml .
 COPY extract.py .
 COPY *.sh .
 RUN chmod +x /app/*.sh
-VOLUME /var/log/cron
 CMD ["./docker-entrypoint.sh"]
