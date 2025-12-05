@@ -41,7 +41,7 @@ jobs:
           docker pull ${{ vars.LOCAL_ACR_URL }}/${{ vars.LOCAL_ACR_USERNAME }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.DATE_RELEASE }}-dev
           docker run --name $CONTAINER_NAME \
             -e GOOGLE_KEEP_ACCOUNT=${{ vars.GOOGLE_KEEP_ACCOUNT }} \
-            -e GOOGLE_KEEP_MASTER_TOKEN=${{ vars.GOOGLE_KEEP_MASTER_TOKEN }} \
+            -e GOOGLE_KEEP_MASTER_TOKEN=${{ secrets.GOOGLE_KEEP_MASTER_TOKEN }} \
             -e SFTP_HOST=${{ vars.SFTP_HOST }} \
             -e SFTP_USERNAME=${{ vars.SFTP_USERNAME }} \
             -e SFTP_PASSWORD=${{ secrets.SFTP_PASSWORD }} \
