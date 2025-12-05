@@ -1,2 +1,2 @@
-gkeepapi
-ansible
+gkeepapi==0.17.0
+ansible==13.0.0
