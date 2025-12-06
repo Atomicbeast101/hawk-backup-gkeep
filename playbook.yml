@@ -29,7 +29,7 @@
 
         - name: Run Extract Script
           delegate_to: localhost
-          command: ".venv/bin/python extract.py {{ backup_data_file }}"
+          ansible.builtin.command: ".venv/bin/python extract.py {{ backup_data_file }}"
         
         - name: Upload Config to SFTP
           delegate_to: localhost
