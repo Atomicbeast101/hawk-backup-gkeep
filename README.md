@@ -26,6 +26,8 @@ Whenever the cron schedule hits, it runs an Ansible playbook that does the follo
 
 This uses [gkeepapi](https://github.com/kiwiz/gkeepapi) which is a 3rd-party unofficial Python package that leverages Android API endpoint to pull notes. Using Google Keep API with its official authentication method requires a Google Workspace account which costs money. Please expect that this can break if Google decides to change that old authentication.
 
+If any of the tasks above fails, a Pushover notification will be sent stating that the backup failed.
+
 ## Setup - Docker
 
 Here's an example of how to run this application in Docker:
