@@ -23,6 +23,7 @@ Whenever the cron schedule hits, it runs an Ansible playbook that does the follo
 2) Run `extract.py` Python script to download all notes via API from Google Keep.
 3) Uploads that extracted data file to SFTP endpoint.
 5) Removes the data file from `/app/.downloads`.
+6) Checks SFTP endpoint for any old backups to remove.
 
 This uses [gkeepapi](https://github.com/kiwiz/gkeepapi) which is a 3rd-party unofficial Python package that leverages Android API endpoint to pull notes. Using Google Keep API with its official authentication method requires a Google Workspace account which costs money. Please expect that this can break if Google decides to change that old authentication.
 
@@ -60,3 +61,4 @@ More details on the environment variables can be found below.
 | SFTP_PATH | Destination path in SFTP server to store config file in. | N/A |
 | PUSHOVER_USER_KEY | User key for Pushover notifications. Gets sent out for failed backups. | N/A |
 | PUSHOVER_APP_TOKEN | App token for Pushover notifications. Gets sent out for failed backups. | N/A |
+| BACKUP_RETENTION_IN_DAYS | # of days to keep historical backups for. | 10 |
